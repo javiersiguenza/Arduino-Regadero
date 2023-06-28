@@ -5,8 +5,8 @@ unsigned long startTime;                             // Variable para almacenar 
 const unsigned long executionTime = 1 * 60 * 1000;   // 5 minutos en milisegundos
 const unsigned long duration = 5UL * 60UL * 1000UL;  // 5 minutos en milisegundos
 
-const int horaInicio = 12;
-const int minutosInicio = 51;
+const int horaInicio = 15;
+const int minutosInicio = 25;
 boolean active = false;
 
 #include <DS3231.h>
@@ -25,6 +25,7 @@ void setup() {
   Wire.begin();  //se inicia la comunicación por I2C
   //configurarHora();
   startTime = millis();
+  regar();
 }
 
 void loop() {
@@ -35,14 +36,23 @@ void loop() {
   hour = now.hour();
   minute = now.minute();
   second = now.second();
-  unsigned long currentMillis = millis();
   //Serial.println(now.minute());
   // Comprobar si es la hora programada (8:00 AM)
 
   if (hour == horaInicio && minute == minutosInicio /*&& second == 0*/) {
+    regar();
+    Serial.println("Parando tarea...");
+    digitalWrite(rele, LOW);
+    active = false;
+  }
+}
+
+void regar(){
+
+  unsigned long currentMillis = millis();
     // Ejecutar durante 5 minutos
     unsigned long taskEndTime = currentMillis + duration;
-    while (currentMillis <= taskEndTime) {
+   while (currentMillis <= taskEndTime) {
       if (!active) {
         Serial.println("Ejecutando tarea...");
         digitalWrite(rele, HIGH);
@@ -50,12 +60,7 @@ void loop() {
       }
       currentMillis = millis();
     }
-    Serial.println("Parando tarea...");
-    digitalWrite(rele, LOW);
-    active = false;
-  }
 }
-
 
 void configurarHora() {
   year = 23;
